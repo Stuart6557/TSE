@@ -1,0 +1,12 @@
+# For AH_automation folder
+credentials.json
+token.json
+AH_Results.csv
+AH.txt
+
+# For Java files
+*.class
+
+# Miscellaneous
+.env
+.DS_store
