@@ -1,3 +1,6 @@
+# Ignore for now, remove later
+members
+
 # For AH_automation folder
 credentials.json
 token.json
