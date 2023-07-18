@@ -4,9 +4,9 @@ In TSE, VP Operations updates grad dates on the Roster after every All Hands (AH
 
 Running this file will produce a file named `AH_Results.csv`, which will contain the following lists:
 
-1. People that are on the AH Response Form but aren't on the Roster. Since this script matches people by email, the people on this list probably typed their email wrong or input a non-UCSD email.
+1. People whose emails are on the AH Response Form but aren't on the Roster. Since this script matches people by email, the people on this list probably typed their email wrong or input a non-UCSD email.
 
-2. People that are on the Roster but aren't on the AH Response Form. If this person isn't in list 1, then this person hasn't filled out the AH Form yet. Ask these people through Slack to fill it out.
+2. People whose emails are on the Roster but aren't on the AH Response Form. If this person isn't in list 1, then this person hasn't filled out the AH Form yet. Ask these people through Slack to fill it out.
 
 3. People whose grad dates need to be updated. Update these on the roster. This list excludes people in lists 1 and 2.
 

@@ -1,6 +1,8 @@
 """
-The contents of this file were copied from 
+The contents of this file were copied verbatim from 
 https://developers.google.com/sheets/api/quickstart/python
+
+You can run this to ensure that Google Sheets API is working.
 """
 
 from __future__ import print_function
