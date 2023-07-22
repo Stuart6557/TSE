@@ -115,11 +115,13 @@ def main():
             if not row:
                 break
 
-            roster[row[roster_email_col]] = [
-                str(r), 
-                row[roster_name_col], 
-                row[roster_grad_date_col]
-            ]
+            # This condition ensures the header row isn't in the dictionary
+            if r > 1:
+                roster[row[roster_email_col].strip()] = [
+                    str(r), 
+                    row[roster_name_col].strip(), 
+                    row[roster_grad_date_col].upper().strip()
+                ]
 
             r += 1
 
@@ -134,39 +136,50 @@ def main():
             if not row:
                 break
 
-            all_hands[row[AH_email_col]] = [
-                str(r), 
-                row[AH_name_col], 
-                row[AH_grad_date_col]
-            ]
+            if r > 1:
+                all_hands[row[AH_email_col].strip()] = [
+                    str(r), 
+                    row[AH_name_col].strip(), 
+                    row[AH_grad_date_col].upper().strip()
+                ]
 
             r += 1
 
         # Create the lists that will be outputted
-        AH_not_roster = roster_not_AH = needs_update = no_update_needed = []
+        AH_not_roster = []
+        roster_not_AH = []
+        needs_update = []
+        no_update_needed = []
 
         # Populate needs_update, no_update_needed, and roster_not_AH
         # by iterating through the roster dictionary
         for roster_email in roster:
             roster_row = roster[roster_email][0]
             roster_name = roster[roster_email][1]
-            roster_grad_date = roster[roster_email][2]
+            roster_grad_date = roster[roster_email][2].upper()
 
             # Case 1: this email doesn't exist in AH Response Form
             if roster_email not in all_hands:
                 roster_not_AH.append(f'{roster_name},{roster_email}')
+
             else:
-                AH_grad_date = all_hands[roster_email][2]
+                AH_grad_date = all_hands[roster_email][2].upper()
+                # I'm adding this because I realized that people often
+                # write something like 'SP 26' instead of 'SP26'
+                if len(AH_grad_date) == 5 and AH_grad_date.find(' ') == 2:
+                    AH_grad_date = AH_grad_date.replace(' ','')
+                
                 # Case 2: grad dates match
                 if roster_grad_date == AH_grad_date:
-                    no_update_needed.append(f'{roster_name},{roster_row},'
-                                            f'{roster_grad_date}')
+                    entry = f'{roster_name},{roster_grad_date}'
+                    no_update_needed.append(entry)
+                
                 # Case 3: grad dates don't match
                 else:
                     needs_update.append(f'{roster_name},{roster_row},'
                                         f'{roster_grad_date},{AH_grad_date}')
-                    
-       # Populate AH_not_roster by iterating through the all_hands dictionary
+ 
+        # Populate AH_not_roster by iterating through the all_hands dictionary
         for AH_email in all_hands:
             if AH_email not in roster:
                 AH_row = all_hands[AH_email][0]
@@ -176,28 +189,37 @@ def main():
         # Output results in alphabetical order to CSV
         f = open('AH_Results.csv', 'a')
 
-        f.write('People whose emails are on the AH '
+        f.write('1. People whose emails are on the AH '
                 'Response Form but not on the Roster\n')
-        AH_not_roster = sorted(AH_not_roster)
-        for entry in AH_not_roster:
-            f.write(entry + '\n')
+        if (len(AH_not_roster) != 0):
+            f.write('Name, Row on AH Response Form, Email on AH Response Form\n')
+            AH_not_roster = sorted(AH_not_roster)
+            for entry in AH_not_roster:
+                f.write(entry + '\n')
         
-        f.write('\nPeople whose emails are on the Roster '
+        f.write('\n2. People whose emails are on the Roster '
                 'but not on the AH Response Form\n')
-        roster_not_AH = sorted(roster_not_AH)
-        for entry in roster_not_AH:
-            f.write(entry + '\n')
+        if (len(roster_not_AH) != 0):
+            f.write('Name, UCSD Email\n')
+            roster_not_AH = sorted(roster_not_AH)
+            for entry in roster_not_AH:
+                f.write(entry + '\n')
         
-        f.write('\nPeople whose grad dates need to be updated\n')
-        needs_update = sorted(needs_update)
-        for entry in needs_update:
-            f.write(entry + '\n')
+        f.write('\n3. People whose grad dates need to be updated\n')
+        if (len(needs_update) != 0):
+            f.write('Name, Row on Roster, Grad Date on Roster, '
+                    'Grad Date on AH Form\n')
+            needs_update = sorted(needs_update)
+            for entry in needs_update:
+                f.write(entry + '\n')
 
-        f.write("\nPeople whose grad dates don't need to be updated\n")
-        no_update_needed = sorted(no_update_needed)
-        for entry in no_update_needed:
-            f.write(entry + '\n')
-
+        f.write("\n4. People whose grad dates don't need to be updated\n")
+        if (len(no_update_needed) != 0):
+            f.write('Name, Grad Date\n')
+            no_update_needed = sorted(no_update_needed)
+            for entry in no_update_needed:
+                f.write(entry + '\n')
+        
     except HttpError as err:
         print(err)
 
