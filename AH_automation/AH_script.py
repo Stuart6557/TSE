@@ -17,12 +17,11 @@ SCOPES = ['https://www.googleapis.com/auth/spreadsheets.readonly']
 
 # The ID and range of the roster.
 ROSTER_SPREADSHEET_ID = os.getenv('ROSTER_SPREADSHEET_ID')
-ROSTER_SHEET = os.getenv('ROSTER_SHEET')
-ROSTER_RANGE = ROSTER_SHEET + '!A1:1000'
+ROSTER_RANGE = os.getenv('ROSTER_SHEET') + '!A1:1000'
 
 # The ID and range of the All Hands (AH) Response Form.
 AH_SPREADSHEET_ID = os.getenv('AH_SPREADSHEET_ID')
-AH_RANGE = 'Form Responses 1!A1:1000'
+AH_RANGE = os.getenv('AH_SHEET') + '!A1:1000'
 
 def main():
     creds = None
