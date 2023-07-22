@@ -20,7 +20,7 @@
  * and very tedious to go through manually.
  * 
  * I decided to abandon this file to write some code that 
- * addressed both of the aforementioned pain points.
+ * addressed both of these pain points.
  */
 
 import java.util.*;

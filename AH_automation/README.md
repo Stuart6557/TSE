@@ -2,9 +2,11 @@
 
 In TSE, VP Operations updates grad dates on the Roster after every All Hands (AH), which happens twice a quarter. It's extremely tedious to do this task manually by looking back and forth at the Roster and the AH Response Form, so I (Vivian Liu) created this script to to the boring heavylifting.
 
-Running this file will produce a file named `AH_Results.csv`, which will contain the following lists:
+Running this file will produce a file named `AH_Results.csv` (or overwrites it if it already exists), which will contain the following lists:
 
 1. People whose emails are on the AH Response Form but aren't on the Roster. Since this script matches people by email, the people on this list probably typed their email wrong or input a non-UCSD email.
+
+* To find out why I'm matching people by email instead of names, read my rant in AH.java in the outdated folder.
 
 2. People whose emails are on the Roster but aren't on the AH Response Form. If this person isn't in list 1, then this person hasn't filled out the AH Form yet. Ask these people through Slack to fill it out.
 
@@ -14,16 +16,22 @@ Running this file will produce a file named `AH_Results.csv`, which will contain
 
 ## How to Use This Script
 
-1. Download `AH_script.py`
+1. Follow the set up instructions [here](https://developers.google.com/sheets/api/quickstart/python). Make sure you are using your UCSD account to do this.
 
-2. Configure UCSD Google account blah blah
+* Note: when installing the client library, you might have to use `pip3` instead of `pip` depending on your Python version.
 
-3. Edit env file & how to fill out/where to find information
+2. Download `AH_script.py` and place it in the same directory as the `credentials.json` file generated from step 1.
 
-4. Run the following command
+3. Create a file named `.env` following the template in `.env.example`.
+
+* A Google Sheet's spreadsheet ID can be found in its link. For example, the link for [this example spreadsheet](https://docs.google.com/spreadsheets/d/1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgvE2upms/edit#gid=0) is `https://docs.google.com/spreadsheets/d/1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgvE2upms/edit#gid=0`. The ID is the string that comes after `d/`, so in this case, it's `"1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgvE2upms"`.
+
+* The name of the specific spreadsheet can be found at the bottom. For example, it's `"Class Data"` on the example spreadsheet.
+
+4. Run the following command (assuming you have Python 3). Make sure you are in the directory that `AH_script.py` is in.
 
 ```
 python3 AH_script.py
 ```
 
-If ur running this for the first time, it will ask u for ur Google account. It will generate a `credentials.json` and `token.json`. Ignore these
+If you're running this for the first time, you will be asked to choose a Google account. Select your UCSD account. It will then generate a `token.json`. Ignore this file, but don't delete it or it will ask you to choose an account again when you run the script the next time.
