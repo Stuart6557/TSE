@@ -1,8 +1,8 @@
 ## About
 
-In TSE, VP Operations updates grad dates on the Roster after every All Hands (AH), which happens twice a quarter. It's extremely tedious to do this task manually by looking back and forth at the Roster and the AH Response Form, so I (Vivian Liu) created this script to to the boring heavylifting.
+In TSE, VP Operations updates grad dates on the Roster after every All Hands (AH), which happens twice a quarter. It's extremely tedious to do this task manually by looking back and forth at the Roster and the AH Response Form, so I (Vivian Liu) created `AH_script.py` to to the boring heavylifting.
 
-Running this file will produce a file named `AH_Results.csv` (or overwrites it if it already exists), which will contain the following lists:
+Running this file will produce a file named `AH_Results.csv`, or overwrites it if it already exists, which will contain the following lists:
 
 1. People whose emails are on the AH Response Form but aren't on the Roster. Since this script matches people by email, the people on this list probably typed their email wrong or input a non-UCSD email.
 
