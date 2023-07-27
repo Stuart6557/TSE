@@ -2,7 +2,7 @@
 This is an incomplete script originally intended to update grad dates after AH.
 
 I decided to abandon this file because I wanted to change my approach. Also, 
-the code here felt really messy and I didn't like what i wrote.
+the code here felt really messy and I didn't like what I wrote.
 '''
 
 from __future__ import print_function
