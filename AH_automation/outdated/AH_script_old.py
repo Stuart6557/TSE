@@ -1,3 +1,7 @@
+# This works but I don't like the algorithm
+
+from __future__ import print_function
+
 import os.path
 
 from google.auth.transport.requests import Request
@@ -6,7 +10,6 @@ from google_auth_oauthlib.flow import InstalledAppFlow
 from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
 
-from operator import itemgetter
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -103,11 +106,11 @@ def main():
                     'email, and grad date column')
             return
         
-        # Create list to store information from the Roster.
-        # Each item is a list in the format [UCSD email, row, name, grad date]
-        roster = []
+        # Create dictionary to store information from the Roster.
+        # Key is UCSD email. Value is [row, name, grad date]
+        roster = {}
 
-        # Iterate through rows in the Roster, adding to the roster list
+        # Iterate through rows in the Roster, adding to the roster dictionary
         r = 1               # Keep track of the row
         for row in roster_values:
             if not row:
@@ -115,97 +118,82 @@ def main():
 
             # This condition ensures the header row isn't in the dictionary
             if r > 1:
-                roster.append([
-                    row[roster_email_col].strip(),
+                roster[row[roster_email_col].strip()] = [
                     str(r), 
                     row[roster_name_col].strip(), 
                     row[roster_grad_date_col].upper().strip()
-                ])
+                ]
 
             r += 1
 
-        # Sort roster list in alphabetical order by email
-        roster = sorted(roster, key=itemgetter(0))
-
-        # Create list to store information from the AH Response Form.
-        # Each item is a list in the format [email, row, name, grad date]
-        all_hands = []
+        # Create dictionary to store information from the AH Response Form.
+        # Key is email. Value is [row, name, grad date]
+        all_hands = {}
 
         # Iterate through rows in the AH Response Form, adding to the 
-        # all_hands list
+        # all_hands dictionary
         r = 1               # Keep track of the row
         for row in AH_values:
             if not row:
                 break
 
             if r > 1:
-                all_hands.append([
-                    row[AH_email_col].strip(),
+                all_hands[row[AH_email_col].strip()] = [
                     str(r), 
                     row[AH_name_col].strip(), 
                     row[AH_grad_date_col].upper().strip()
-                ])
+                ]
 
             r += 1
 
-        # Sort all_hands list in alphabetical order by email
-        all_hands = sorted(all_hands, key=itemgetter(0))
-
         # Create the lists that will be outputted
-        AH_not_roster = []    # Entries follow format 'AH_name, AH_row, AH_email'
-        roster_not_AH = []    # Entries follow format 'roster_name, roster_email'
-        needs_update = []     # Entries follow format 'roster_name, roster_row, 
-                              # roster_grad_date, AH_grad_date'
-        no_update_needed = [] # Entries follow format 'roster_name, roster_grad_date'
+        AH_not_roster = []
+        roster_not_AH = []
+        needs_update = []
+        no_update_needed = []
 
         # Populate needs_update, no_update_needed, and roster_not_AH
-        # by iterating through the roster and all_hands lists
-        rosterIdx = 0
-        ahIdx = 0
+        # by iterating through the roster dictionary
+        for roster_email in roster:
+            roster_row = roster[roster_email][0]
+            roster_name = roster[roster_email][1]
+            roster_grad_date = roster[roster_email][2].upper()
 
-        while rosterIdx < len(roster) and ahIdx < len(all_hands):
-          if roster[rosterIdx][0] == all_hands[ahIdx][0]:     # Emails match
-            # I'm adding this because I realized that people often
-            # write something like 'SP 26' instead of 'SP26'
-            AH_grad_date = all_hands[ahIdx][3]
-            if len(AH_grad_date) == 5 and AH_grad_date.find(' ') == 2:
-                AH_grad_date = AH_grad_date.replace(' ','')
+            # Case 1: this email doesn't exist in AH Response Form
+            if roster_email not in all_hands:
+                roster_not_AH.append(f'{roster_name},{roster_email}')
 
-            if roster[rosterIdx][3] == AH_grad_date:
-              # Grad dates match
-              no_update_needed.append(f'{roster[rosterIdx][2]},{roster[rosterIdx][3]}')
             else:
-              # Grad dates don't match
-              needs_update.append(f'{roster[rosterIdx][2]},{roster[rosterIdx][1]},'
-                                        f'{roster[rosterIdx][3]},{all_hands[ahIdx][3]}')
-            
-            rosterIdx += 1
-            ahIdx += 1
-          
-          else:
-            # Emails don't match, compare to see which email comes first alphabetically
-            if roster[rosterIdx][0] < all_hands[ahIdx][0]:
-              roster_not_AH.append(f'{roster[rosterIdx][2]},{roster[rosterIdx][0]}')
-              rosterIdx += 1
-            else:
-              AH_not_roster.append(f'{all_hands[ahIdx][2]},{all_hands[ahIdx][1]},{all_hands[ahIdx][0]}')
-              ahIdx += 1
+                AH_grad_date = all_hands[roster_email][2].upper()
+                # I'm adding this because I realized that people often
+                # write something like 'SP 26' instead of 'SP26'
+                if len(AH_grad_date) == 5 and AH_grad_date.find(' ') == 2:
+                    AH_grad_date = AH_grad_date.replace(' ','')
+                
+                # Case 2: grad dates match
+                if roster_grad_date == AH_grad_date:
+                    no_update_needed.append(f'{roster_name},{roster_grad_date}')
+                
+                # Case 3: grad dates don't match
+                else:
+                    needs_update.append(f'{roster_name},{roster_row},'
+                                        f'{roster_grad_date},{AH_grad_date}')
+ 
+        # Populate AH_not_roster by iterating through the all_hands dictionary
+        for AH_email in all_hands:
+            if AH_email not in roster:
+                AH_row = all_hands[AH_email][0]
+                AH_name = all_hands[AH_email][1]
+                AH_not_roster.append(f'{AH_name},{AH_row},{AH_email}')
 
-        while rosterIdx < len(roster):
-          roster_not_AH.append(f'{roster[rosterIdx][2]},{roster[rosterIdx][0]}')
-          rosterIdx += 1
-
-        while ahIdx < len(all_hands):
-          AH_not_roster.append(f'{all_hands[ahIdx][2]},{all_hands[ahIdx][1]},{all_hands[ahIdx][0]}')
-          ahIdx += 1
-        
-        # Output results to CSV
+        # Output results in alphabetical order to CSV
         f = open('AH_Results.csv', 'a')
 
         f.write('1. People whose emails are on the AH '
                 'Response Form but not on the Roster\n')
         if (len(AH_not_roster) != 0):
             f.write('Name, Row on AH Response Form, Email on AH Response Form\n')
+            AH_not_roster = sorted(AH_not_roster)
             for entry in AH_not_roster:
                 f.write(entry + '\n')
         
@@ -213,6 +201,7 @@ def main():
                 'but not on the AH Response Form\n')
         if (len(roster_not_AH) != 0):
             f.write('Name, UCSD Email\n')
+            roster_not_AH = sorted(roster_not_AH)
             for entry in roster_not_AH:
                 f.write(entry + '\n')
         
@@ -220,12 +209,14 @@ def main():
         if (len(needs_update) != 0):
             f.write('Name, Row on Roster, Grad Date on Roster, '
                     'Grad Date on AH Form\n')
+            needs_update = sorted(needs_update)
             for entry in needs_update:
                 f.write(entry + '\n')
 
         f.write("\n4. People whose grad dates don't need to be updated\n")
         if (len(no_update_needed) != 0):
             f.write('Name, Grad Date\n')
+            no_update_needed = sorted(no_update_needed)
             for entry in no_update_needed:
                 f.write(entry + '\n')
         
