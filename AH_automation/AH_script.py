@@ -152,11 +152,13 @@ def main():
         all_hands = sorted(all_hands, key=itemgetter(0))
 
         # Create the lists that will be outputted
-        AH_not_roster = []    # Entries follow format 'AH_name, AH_row, AH_email'
-        roster_not_AH = []    # Entries follow format 'roster_name, roster_email'
-        needs_update = []     # Entries follow format 'roster_name, roster_row, 
-                              # roster_grad_date, AH_grad_date'
+        AH_not_roster = []    # Entries follow format 'AH_name, AH_email, AH_grad_date, AH_row'
+        roster_not_AH = []    # Entries follow format 'roster_name, roster_email, 
+                              # roster_grad_date, roster_row'
+        needs_update = []     # Entries follow format 'roster_name, roster_grad_date, 
+                              # AH_grad_date, roster_row'
         no_update_needed = [] # Entries follow format 'roster_name, roster_grad_date'
+                              # roster_row'
 
         # Populate needs_update, no_update_needed, and roster_not_AH
         # by iterating through the roster and all_hands lists
@@ -173,11 +175,12 @@ def main():
 
             if roster[rosterIdx][3] == AH_grad_date:
               # Grad dates match
-              no_update_needed.append(f'{roster[rosterIdx][2]},{roster[rosterIdx][3]}')
+              no_update_needed.append(f'{roster[rosterIdx][2]},{roster[rosterIdx][3]},'
+                                      f'{roster[rosterIdx][1]}')
             else:
               # Grad dates don't match
-              needs_update.append(f'{roster[rosterIdx][2]},{roster[rosterIdx][1]},'
-                                        f'{roster[rosterIdx][3]},{all_hands[ahIdx][3]}')
+              needs_update.append(f'{roster[rosterIdx][2]},{roster[rosterIdx][3]},'
+                                        f'{all_hands[ahIdx][3]},{roster[rosterIdx][1]}')
             
             rosterIdx += 1
             ahIdx += 1
@@ -185,10 +188,12 @@ def main():
           else:
             # Emails don't match, compare to see which email comes first alphabetically
             if roster[rosterIdx][0] < all_hands[ahIdx][0]:
-              roster_not_AH.append(f'{roster[rosterIdx][2]},{roster[rosterIdx][0]}')
+              roster_not_AH.append(f'{roster[rosterIdx][2]},{roster[rosterIdx][0]},'
+                                   f'{roster[rosterIdx][3]},{roster[rosterIdx][1]}')
               rosterIdx += 1
             else:
-              AH_not_roster.append(f'{all_hands[ahIdx][2]},{all_hands[ahIdx][1]},{all_hands[ahIdx][0]}')
+              AH_not_roster.append(f'{all_hands[ahIdx][2]},{all_hands[ahIdx][0]},'
+                                   f'{all_hands[ahIdx][3]},{all_hands[ahIdx][1]}')
               ahIdx += 1
 
         while rosterIdx < len(roster):
@@ -201,31 +206,34 @@ def main():
         
         # Output results to CSV
         f = open('AH_Results.csv', 'a')
+        
 
-        f.write('1. People whose emails are on the AH '
-                'Response Form but not on the Roster\n')
+        f.write('1. People on AH Form but not Roster\n')
         if (len(AH_not_roster) != 0):
-            f.write('Name, Row on AH Response Form, Email on AH Response Form\n')
+            f.write('Name,Email,Grad Date on AH Form,Row on AH Form\n')
+            AH_not_roster = sorted(AH_not_roster)
             for entry in AH_not_roster:
                 f.write(entry + '\n')
         
-        f.write('\n2. People whose emails are on the Roster '
-                'but not on the AH Response Form\n')
+        f.write('\n2. People on Roster but not AH Form\n')
         if (len(roster_not_AH) != 0):
-            f.write('Name, UCSD Email\n')
+            f.write('Name,UCSD Email,Grad Date on Roster,Row on Roster\n')
+            roster_not_AH = sorted(roster_not_AH)
             for entry in roster_not_AH:
                 f.write(entry + '\n')
         
-        f.write('\n3. People whose grad dates need to be updated\n')
+        f.write('\n3. Needs update\n')
         if (len(needs_update) != 0):
-            f.write('Name, Row on Roster, Grad Date on Roster, '
-                    'Grad Date on AH Form\n')
+            f.write('Name,Grad Date on Roster,Grad Date on AH Form, '
+                    'Row on Roster\n')
+            needs_update = sorted(needs_update)
             for entry in needs_update:
                 f.write(entry + '\n')
 
-        f.write("\n4. People whose grad dates don't need to be updated\n")
+        f.write("\n4. Doesn't need update\n")
         if (len(no_update_needed) != 0):
-            f.write('Name, Grad Date\n')
+            f.write('Name,Grad Date,Row on Roster\n')
+            no_update_needed = sorted(no_update_needed)
             for entry in no_update_needed:
                 f.write(entry + '\n')
         
