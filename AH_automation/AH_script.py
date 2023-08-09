@@ -197,11 +197,13 @@ def main():
               ahIdx += 1
 
         while rosterIdx < len(roster):
-          roster_not_AH.append(f'{roster[rosterIdx][2]},{roster[rosterIdx][0]}')
+          roster_not_AH.append(f'{roster[rosterIdx][2]},{roster[rosterIdx][0]},'
+                               f'{roster[rosterIdx][3]},{roster[rosterIdx][1]}')
           rosterIdx += 1
 
         while ahIdx < len(all_hands):
-          AH_not_roster.append(f'{all_hands[ahIdx][2]},{all_hands[ahIdx][1]},{all_hands[ahIdx][0]}')
+          AH_not_roster.append(f'{all_hands[ahIdx][2]},{all_hands[ahIdx][0]},'
+                               f'{all_hands[ahIdx][3]},{all_hands[ahIdx][1]}')
           ahIdx += 1
         
         # Output results to CSV
