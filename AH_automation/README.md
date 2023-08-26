@@ -18,8 +18,6 @@ Running this file will produce a file named `AH_Results.csv`, or overwrites it i
 
 1. Follow the set up instructions [here](https://developers.google.com/sheets/api/quickstart/python). Make sure you are using your UCSD account to do this.
 
-* Note: when installing the client library, you might have to use `pip3` instead of `pip` depending on your Python version.
-
 2. Download `AH_script.py` and place it in the same directory as the `credentials.json` file generated from step 1.
 
 3. Create a file named `.env` following the template in `.env.example`.
@@ -28,7 +26,7 @@ Running this file will produce a file named `AH_Results.csv`, or overwrites it i
 
 * The name of the specific spreadsheet can be found at the bottom. For example, it's `"Class Data"` on the example spreadsheet.
 
-4. Run the following command (assuming you have Python 3). Make sure you are in the directory that `AH_script.py` is in.
+4. Run the following command. Make sure you are in the directory that `AH_script.py` is in.
 
 ```
 python3 AH_script.py
