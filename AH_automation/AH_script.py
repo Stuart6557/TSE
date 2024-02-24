@@ -143,7 +143,7 @@ def main():
                     row[AH_email_col].strip(),
                     str(r), 
                     row[AH_name_col].strip(), 
-                    row[AH_grad_date_col].upper().strip()
+                    row[AH_grad_date_col].strip()
                 ])
 
             r += 1
@@ -155,8 +155,8 @@ def main():
         AH_not_roster = []    # Entries follow format 'AH_name, AH_email, AH_grad_date, AH_row'
         roster_not_AH = []    # Entries follow format 'roster_name, roster_email, 
                               # roster_grad_date, roster_row'
-        needs_update = []     # Entries follow format 'roster_name, roster_grad_date, 
-                              # AH_grad_date, roster_row'
+        needs_update = []     # Entries follow format 'roster_name, AH_grad_date, 
+                              # roster_grad_date, roster_row'
         no_update_needed = [] # Entries follow format 'roster_name, roster_grad_date'
                               # roster_row'
 
@@ -167,9 +167,9 @@ def main():
 
         while rosterIdx < len(roster) and ahIdx < len(all_hands):
           if roster[rosterIdx][0] == all_hands[ahIdx][0]:     # Emails match
+            AH_grad_date = all_hands[ahIdx][3].upper()
             # I'm adding this because I realized that people often
             # write something like 'SP 26' instead of 'SP26'
-            AH_grad_date = all_hands[ahIdx][3]
             if len(AH_grad_date) == 5 and AH_grad_date.find(' ') == 2:
                 AH_grad_date = AH_grad_date.replace(' ','')
 
@@ -179,8 +179,8 @@ def main():
                                       f'{roster[rosterIdx][1]}')
             else:
               # Grad dates don't match
-              needs_update.append(f'{roster[rosterIdx][2]},{roster[rosterIdx][3]},'
-                                        f'{all_hands[ahIdx][3]},{roster[rosterIdx][1]}')
+              needs_update.append(f'{roster[rosterIdx][2]},{all_hands[ahIdx][3]},'
+                                        f'{roster[rosterIdx][3]},{roster[rosterIdx][1]}')
             
             rosterIdx += 1
             ahIdx += 1
@@ -208,7 +208,6 @@ def main():
         
         # Output results to CSV
         f = open('AH_Results.csv', 'a')
-        
 
         f.write('1. People on AH Form but not Roster\n')
         if (len(AH_not_roster) != 0):
@@ -226,7 +225,7 @@ def main():
         
         f.write('\n3. Needs update\n')
         if (len(needs_update) != 0):
-            f.write('Name,Grad Date on Roster,Grad Date on AH Form, '
+            f.write('Name,Grad Date on AH Form,Grad Date on Roster,'
                     'Row on Roster\n')
             needs_update = sorted(needs_update)
             for entry in needs_update:
@@ -238,6 +237,8 @@ def main():
             no_update_needed = sorted(no_update_needed)
             for entry in no_update_needed:
                 f.write(entry + '\n')
+
+        f.close()
         
     except HttpError as err:
         print(err)
